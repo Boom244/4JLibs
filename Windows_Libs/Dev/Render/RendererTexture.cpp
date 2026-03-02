@@ -193,12 +193,12 @@ void Renderer::TextureSetParam(int param, int value)
 
 void Renderer::TextureDynamicUpdateStart()
 {
-    // TODO: this is for a different platform? it's empty in Render_PC.lib but not Render.lib
+    // TODO(3UR): this is for a different platform? it's empty in Render_PC.lib but not Render.lib
 }
 
 void Renderer::TextureDynamicUpdateEnd()
 {
-    // TODO: this is for a different platform? it's empty in Render_PC.lib but not Render.lib
+    // TODO(3UR): this is for a different platform? it's empty in Render_PC.lib but not Render.lib
 }
 
 void Renderer::UpdateTextureState(bool bVertex)
@@ -290,7 +290,7 @@ HRESULT Renderer::SaveTextureDataToMemory(void* pOutput, int outputCapacity, int
 
 void Renderer::TextureGetStats()
 {
-    // TODO: this is for a different platform? it's empty in Render_PC.lib but not Render.lib
+    // TODO(3UR): this is for a different platform? it's empty in Render_PC.lib but not Render.lib
 }
 
 ID3D11ShaderResourceView* Renderer::TextureGetTexture(int idx)
