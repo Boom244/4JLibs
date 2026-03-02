@@ -445,8 +445,8 @@ public:
     std::unordered_map<int, ID3D11DepthStencilState *> managedDepthStencilStates;
     std::unordered_map<int, ID3D11SamplerState *> managedSamplerStates;
     std::unordered_map<int, ID3D11RasterizerState *> managedRasterizerStates;
-    BYTE shouldScreenGrabNextFrame;
-    BYTE suspended;
+    bool m_bShouldScreenGrabNextFrame;
+    bool m_bSuspended;
     BYTE paddingAfterSuspendState[2];
 };
 

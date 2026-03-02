@@ -68,7 +68,7 @@ void Renderer::TextureBind(int idx)
     if (c.commandBuffer && c.commandBuffer->isActive)
         c.commandBuffer->BindTexture(idx);
 
-    c.boundTextureIndex = idx;
+    c.textureIdx = idx;
     c.m_pDeviceContext->PSSetShaderResources(0, 1, &m_textures[idx].view);
 
     UpdateTextureState(false);
@@ -81,7 +81,7 @@ void Renderer::TextureBindVertex(int idx)
 
     Context& c = this->getContext();
 
-    c.boundTextureIndex = idx;
+    c.textureIdx = idx;
     c.m_pDeviceContext->VSSetShaderResources(0, 1, &m_textures[idx].view);
 
     UpdateTextureState(true);
@@ -90,19 +90,19 @@ void Renderer::TextureBindVertex(int idx)
 void Renderer::TextureSetTextureLevels(int levels)
 {
     Context& c = this->getContext();
-    m_textures[c.boundTextureIndex].mipLevels = levels;
+    m_textures[c.textureIdx].mipLevels = levels;
 }
 
 int Renderer::TextureGetTextureLevels()
 {
     Context& c = this->getContext();
-    return m_textures[c.boundTextureIndex].mipLevels;
+    return m_textures[c.textureIdx].mipLevels;
 }
 
 void Renderer::TextureData(int width, int height, void* data, int level, C4JRender::eTextureFormat format)
 {
     Context& c = this->getContext();
-    int idx = c.boundTextureIndex;
+    int idx = c.textureIdx;
 
     m_textures[idx].textureFormat = format;
 
@@ -138,7 +138,7 @@ void Renderer::TextureData(int width, int height, void* data, int level, C4JRend
 void Renderer::TextureDataUpdate(int xoffset, int yoffset, int width, int height, void* data, int level)
 {
     Context& c = this->getContext();
-    int idx = c.boundTextureIndex;
+    int idx = c.textureIdx;
 
     D3D11_TEXTURE2D_DESC desc;
     m_textures[idx].texture->GetDesc(&desc);
@@ -164,7 +164,7 @@ void Renderer::TextureDataUpdate(int xoffset, int yoffset, int width, int height
 void Renderer::TextureSetParam(int param, int value)
 {
     Context& c = this->getContext();
-    int idx = c.boundTextureIndex;
+    int idx = c.textureIdx;
 
     switch (param)
     {

@@ -2,9 +2,7 @@
 #include "CompiledShaders.h"
 #include "Renderer.h"
 
-#include <algorithm>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <new>
@@ -290,10 +288,12 @@ void Renderer::ConvertLinearToPng(ImageFileBuffer *pngOut, unsigned char *linear
     pngOut->m_bufferSize = outputLength;
 }
 
-void Renderer::DoScreenGrabOnNextPresent() { m_bShouldScreenGrabNextFrame = 1; }
+void Renderer::DoScreenGrabOnNextPresent() 
+{ 
+    m_bShouldScreenGrabNextFrame = true; 
+}
 
 void Renderer::EndConditionalRendering() {}
-
 void Renderer::EndConditionalSurvey() {}
 
 void Renderer::BeginEvent(LPCWSTR eventName)
@@ -339,8 +339,8 @@ void Renderer::Initialise(ID3D11Device *pDevice, IDXGISwapChain *pSwapChain)
 
     reservedRendererDword3 = 0;
 
-    shouldScreenGrabNextFrame = 0;
-    suspended = 0;
+    m_bShouldScreenGrabNextFrame = false;
+    m_bSuspended = false;
 
     this->SetupShaders();
     const float clearColour[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -510,7 +510,7 @@ bool Renderer::IsWidescreen()
 
 void Renderer::Present()
 {
-    if (shouldScreenGrabNextFrame)
+    if (m_bShouldScreenGrabNextFrame)
     {
         int *linearData = new int[kScreenGrabWidth * kScreenGrabHeight];
         ID3D11Texture2D *backBuffer = nullptr;
@@ -569,7 +569,7 @@ void Renderer::Present()
             backBuffer->Release();
             backBuffer = nullptr;
         }
-        shouldScreenGrabNextFrame = 0;
+        m_bShouldScreenGrabNextFrame = false;
     }
 
     m_pSwapChain->Present(1, 0);
@@ -578,7 +578,7 @@ void Renderer::Present()
 
 void Renderer::Resume()
 {
-    suspended = 0;
+    m_bSuspended = false;
 }
 
 void Renderer::SetClearColour(const float colourRGBA[4])
@@ -684,12 +684,12 @@ void Renderer::StartFrame()
 
 void Renderer::Suspend()
 {
-    suspended = 1;
+    m_bSuspended = true;
 }
 
 bool Renderer::Suspended()
 {
-    return suspended != 0;
+    return m_bSuspended;
 }
 
 void Renderer::UpdateGamma(unsigned short) {}
