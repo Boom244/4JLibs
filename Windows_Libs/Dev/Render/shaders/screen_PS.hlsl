@@ -21,28 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-cbuffer screenspace_constants : register(b9)
+cbuffer cbuff : register(b4)
 {
-    float4 v_scaleoffset;
+    float4 clearColour;
 };
 
-void VS_ScreenSpace(uint vertex_id : SV_VertexID, out float4 position : SV_POSITION, out float2 texcoord : TEXCOORD0)
-{
-    float2 corner = float2(
-        (vertex_id << 1) & 2,
-        vertex_id & 2
-    );
+SamplerState screen_sampler_s : register(s0);
+Texture2D<float4> screen_texture : register(t0);
 
-    position = float4(corner * float2(2, -2) + float2(-1, 1), 1, 1);
-    texcoord = corner * 0.5 * v_scaleoffset.zw + v_scaleoffset.xy;
+float4 PS_ScreenSpace(float4 position : SV_POSITION, float2 texcoord : TEXCOORD0) : SV_TARGET
+{
+    return screen_texture.Sample(screen_sampler_s, texcoord);
 }
 
-void VS_ScreenClear(uint vertex_id : SV_VertexID, out float4 position : SV_POSITION)
+float4 PS_ScreenClear(float4 position : SV_POSITION) : SV_TARGET
 {
-    float2 corner = float2(
-        (vertex_id << 1) & 2,
-        vertex_id & 2
-    );
-
-    position = float4(corner * float2(2, -2) + float2(-1, 1), 1, 1);
+    return clearColour;
 }
