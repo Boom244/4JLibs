@@ -27,7 +27,7 @@ SOFTWARE.
 // requires linking Minecraft.Client against Ws2_32.lib
 // stats are available at http://127.0.0.1:1338/
 
-#define ENABLE_PROFILING
+//#define ENABLE_PROFILING
 
 #ifdef ENABLE_PROFILING
 #include "microprofile/microprofile.h"
