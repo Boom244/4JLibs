@@ -46,7 +46,7 @@ public:
 
     struct RUMBLE_EFFECT
     {
-        DWORD m_Pad;
+        SDL_Gamepad* m_Pad;
         uint64_t m_TimeLeft;
         SDLRumbleData m_RumbleData;
         WORD unk;
@@ -79,7 +79,7 @@ public:
     void ProcessEventInstance(FF_EFFECT_INSTANCE *pEffectInst);
     void PauseEventInstance(FF_EFFECT_INSTANCE *pEffectInst);
 
-    void AddRumble(unsigned int uiPad, WORD leftMotorSpeed, WORD rightMotorSpeed, float fSeconds);
+    void AddRumble(SDL_Gamepad* uiPad, WORD leftMotorSpeed, WORD rightMotorSpeed, float fSeconds);
 
     void Tick(void);
 

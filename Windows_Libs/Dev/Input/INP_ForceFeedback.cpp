@@ -77,7 +77,7 @@ void CForceFeedback::ProcessEventInstance(FF_EFFECT_INSTANCE *pEffectInst) {}
 
 void CForceFeedback::PauseEventInstance(FF_EFFECT_INSTANCE *pEffectInst) {}
 
-void CForceFeedback::AddRumble(unsigned int uiPad, WORD leftMotorSpeed, WORD rightMotorSpeed, float fSeconds)
+void CForceFeedback::AddRumble(SDL_Gamepad* uiPad, WORD leftMotorSpeed, WORD rightMotorSpeed, float fSeconds)
 {
     RUMBLE_EFFECT *pRumble = new RUMBLE_EFFECT();
 
@@ -91,6 +91,7 @@ void CForceFeedback::AddRumble(unsigned int uiPad, WORD leftMotorSpeed, WORD rig
 
     m_RumbleList.AddToTail(pRumble);
 }
+
 
 void CForceFeedback::Tick(void)
 {
@@ -108,14 +109,18 @@ void CForceFeedback::Tick(void)
     LinkedList::_LL_NODE *pRumbleNode = m_RumbleList.m_Head;
     while (pRumbleNode)
     {
-        if (pRumbleNode->GetDataAs<RUMBLE_EFFECT>()->m_TimeLeft <= qwCurrentTime.QuadPart)
+        RUMBLE_EFFECT *pRumble = pRumbleNode->GetDataAs<RUMBLE_EFFECT>();
+        if (pRumbleNode->GetDataAs<RUMBLE_EFFECT>()->m_TimeLeft <= qwCurrentTime.QuadPart) //By inference, m_TimeLeft is a constant value a
         {
-            RUMBLE_EFFECT *pRumble = pRumbleNode->GetDataAs<RUMBLE_EFFECT>();
+            
 
             pRumble->m_RumbleData.wLeftMotorSpeed = 0;
             pRumble->m_RumbleData.wRightMotorSpeed = 0;
 
-            XInputSetState(pRumble->m_Pad, &pRumble->m_RumbleData);
+            SDL_RumbleGamepad(pRumble->m_Pad,
+                pRumble->m_RumbleData.wLeftMotorSpeed,
+                pRumble->m_RumbleData.wRightMotorSpeed,
+                pRumble->m_TimeLeft);
 
             m_RumbleList.RemoveNode(pRumbleNode);
 
@@ -127,7 +132,7 @@ void CForceFeedback::Tick(void)
         }
         else
         {
-            XInputSetState(pRumbleNode->GetDataAs<RUMBLE_EFFECT>()->m_Pad, &pRumbleNode->GetDataAs<RUMBLE_EFFECT>()->m_RumbleData);
+            SDL_RumbleGamepad(pRumble->m_Pad, pRumble->m_RumbleData.wLeftMotorSpeed, pRumble->m_RumbleData.wRightMotorSpeed, pRumble->m_TimeLeft);
             pRumbleNode = pRumbleNode->m_Next;
         }
     }
