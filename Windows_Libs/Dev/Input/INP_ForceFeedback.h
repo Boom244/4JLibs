@@ -36,11 +36,19 @@ public:
         FF_PARAMS_PERIODIC
     };
 
+    //Gonna extend SDL with dummy structs to mimic XInput behaviour when necessary...
+    struct SDLRumbleData
+    {
+        unsigned short wLeftMotorSpeed;
+        unsigned short wRightMotorSpeed;
+
+    };
+
     struct RUMBLE_EFFECT
     {
         DWORD m_Pad;
         uint64_t m_TimeLeft;
-        XINPUT_VIBRATION m_RumbleData;
+        SDLRumbleData m_RumbleData;
         WORD unk;
     };
 

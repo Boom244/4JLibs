@@ -29,6 +29,6 @@ SOFTWARE.
 
 #include <cstdint>
 #include <assert.h>
-#include <Xinput.h>
+#include "SDL3/SDL.h"
 
 #endif //STDAFX_H

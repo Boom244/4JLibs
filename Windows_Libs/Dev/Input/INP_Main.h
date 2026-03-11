@@ -31,6 +31,7 @@ SOFTWARE.
 class CInput
 {
 public:
+
     struct JOYPAD
     {
         bool m_bIsDisabled;
@@ -58,8 +59,8 @@ public:
         float m_fNormalizedLeftThumbX;
         float m_fNormalizedLeftThumbY;
 
-        unsigned char m_ucLeftTriggerState;
-        unsigned char m_ucRightTriggerState;
+        Sint16 m_ucLeftTriggerState;
+        Sint16 m_ucRightTriggerState;
 
         float *m_pfLeftThumbXAxisMap;
         float *m_pfLeftThumbYAxisMap;
@@ -68,12 +69,12 @@ public:
 
         float m_fSensitivity;
 
-        BYTE *m_pucLeftTriggerAxisMap;
-        BYTE *m_pucRightTriggerAxisMap;
+        short* m_pucLeftTriggerAxisMap;
+        short* m_pucRightTriggerAxisMap;
 
         unsigned char m_ucMappingValue;
         unsigned char m_ucInputStateIndex;
-        XINPUT_STATE *m_pInputStates;
+        SDL_Gamepad* sdlGamepad; //It's not anywhere in the header, so I think it'll be fiiine...
     };
 
     struct JOYPADS

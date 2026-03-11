@@ -44,6 +44,7 @@ CInput::CInput()
     m_pDebugSequenceFn = 0;
 }
 
+//Commenting as I go along converting XInput to SDL...
 void CInput::Initialise(int iInputStateC, unsigned char ucMapC, unsigned char ucActionC, unsigned char ucMenuActionC)
 {
     assert(iInputStateC > 0);
@@ -55,7 +56,7 @@ void CInput::Initialise(int iInputStateC, unsigned char ucMapC, unsigned char uc
     m_ucInputStateC = iInputStateC;
 
     m_iDeadzone = 0x2710;
-    m_iMovementRangeMax = 0x7FFF;
+    m_iMovementRangeMax = 0x7FFF; 
 
     m_iEffectiveRange = m_iMovementRangeMax - m_iDeadzone;
     m_iHalfRange = m_iEffectiveRange / 2;
@@ -63,7 +64,6 @@ void CInput::Initialise(int iInputStateC, unsigned char ucMapC, unsigned char uc
 
     for (int i = 0; i < MAX_JOYPADS; i++)
     {
-        m_Joypads[i].m_pInputStates = new XINPUT_STATE[m_ucInputStateC];
         m_Joypads[i].m_ucInputStateIndex = -1;
         m_Joypads[i].m_pfLeftThumbXAxisMap = &m_Joypads[i].m_fNormalizedLeftThumbX;
         m_Joypads[i].m_pfLeftThumbYAxisMap = &m_Joypads[i].m_fNormalizedLeftThumbY;
@@ -97,160 +97,172 @@ void CInput::Tick(void)
 
 void CInput::SetJoypadValues(JOYPAD *pThisPad)
 {
-    XINPUT_GAMEPAD *pGamePad = &pThisPad->m_pInputStates[pThisPad->m_ucInputStateIndex].Gamepad;
+    SDL_Gamepad* pGamePad = pThisPad->sdlGamepad;
 
-    if (pGamePad->bLeftTrigger > 0x7Fu)
+    pThisPad->m_ucLeftTriggerState = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
+    pThisPad->m_ucRightTriggerState = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
+
+    //I'm keeping the output to Xbox 360 buttons because that's what seems to work
+    //on the other side of the ABI @ MinecraftConsoles. 
+
+    if (SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) > 0x3FFF)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LT;
     }
-    if (pGamePad->bRightTrigger > 0x7Fu)
+    if (SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) > 0x3FFF)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RT;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RB;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LB;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_A) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_SOUTH) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_A;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_B) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_EAST) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_B;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_X) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_WEST) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_X;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_Y) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_NORTH) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_Y;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_START) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_START) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_START;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_BACK) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_BACK) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_BACK;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_LEFT_THUMB) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_LEFT_STICK) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RTHUMB;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_RIGHT_STICK) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LTHUMB;
     }
 
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_DPAD_UP) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_DPAD_UP;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_DPAD_DOWN) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_DPAD_DOWN;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_DPAD_LEFT) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_DPAD_LEFT;
     }
-    if ((pGamePad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0)
+    if (SDL_GetGamepadButton(pGamePad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) != 0)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_DPAD_RIGHT;
     }
+    Sint16 leftX, leftY, rightX, rightY; //stash these values for now ahead of assigning them to the JOYPAD struct
+    //instead of making multiple SDL calls for the next few if blocks
 
-    if (pGamePad->sThumbLX > m_iHalfRange + m_iDeadzone)
+    leftX = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_LEFTX);
+    rightX = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_RIGHTX);
+    leftY = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_LEFTY);
+    rightY = SDL_GetGamepadAxis(pGamePad, SDL_GAMEPAD_AXIS_RIGHTY);
+
+    if (leftX > m_iHalfRange + m_iDeadzone)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LSTICK_RIGHT;
     }
-    if (pGamePad->sThumbLX < -m_iDeadzone - m_iHalfRange)
+    if (leftX < -m_iDeadzone - m_iHalfRange)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LSTICK_LEFT;
     }
 
-    if (pGamePad->sThumbRY < -m_iDeadzone - m_iHalfRange)
+    if (rightY < -m_iDeadzone - m_iHalfRange)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RSTICK_DOWN;
     }
-    if (pGamePad->sThumbRY > m_iHalfRange + m_iDeadzone)
+    if (rightY > m_iHalfRange + m_iDeadzone)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RSTICK_UP;
     }
-    if (pGamePad->sThumbRX > m_iHalfRange + m_iDeadzone)
+    if (rightX > m_iHalfRange + m_iDeadzone)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RSTICK_RIGHT;
     }
-    if (pGamePad->sThumbRX < -m_iDeadzone - m_iHalfRange)
+    if (rightX < -m_iDeadzone - m_iHalfRange)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_RSTICK_LEFT;
     }
 
-    if (pGamePad->sThumbLY < -m_iDeadzone - m_iHalfRange)
+    if (leftY < -m_iDeadzone - m_iHalfRange)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LSTICK_DOWN;
     }
-    if (pGamePad->sThumbLY > m_iHalfRange + m_iDeadzone)
+    if (leftY > m_iHalfRange + m_iDeadzone)
     {
         pThisPad->m_uiButtons |= _360_JOY_BUTTON_LSTICK_UP;
     }
 
-    pThisPad->m_ucLeftTriggerState = pGamePad->bLeftTrigger;
-    pThisPad->m_ucRightTriggerState = pGamePad->bRightTrigger;
+    
 
-    if (pGamePad->sThumbRX <= m_iDeadzone)
+    if (rightX <= m_iDeadzone)
     {
-        if (pGamePad->sThumbRX >= -m_iDeadzone)
+        if (rightX >= -m_iDeadzone)
             pThisPad->m_iRightThumbX = 0;
         else
-            pThisPad->m_iRightThumbX = m_iDeadzone + pGamePad->sThumbRX;
+            pThisPad->m_iRightThumbX = m_iDeadzone + rightX;
     }
     else
     {
-        pThisPad->m_iRightThumbX = pGamePad->sThumbRX - m_iDeadzone;
+        pThisPad->m_iRightThumbX = rightX - m_iDeadzone;
     }
-    if (pGamePad->sThumbRY <= m_iDeadzone)
+    if (rightY <= m_iDeadzone)
     {
-        if (pGamePad->sThumbRY >= -m_iDeadzone)
+        if (rightY >= -m_iDeadzone)
             pThisPad->m_iRightThumbY = 0;
         else
-            pThisPad->m_iRightThumbY = m_iDeadzone + pGamePad->sThumbRY;
+            pThisPad->m_iRightThumbY = m_iDeadzone + rightY;
     }
     else
     {
-        pThisPad->m_iRightThumbY = pGamePad->sThumbRY - m_iDeadzone;
+        pThisPad->m_iRightThumbY = rightY - m_iDeadzone;
     }
-    if (pGamePad->sThumbLX <= m_iDeadzone)
+    if (leftX <= m_iDeadzone)
     {
-        if (pGamePad->sThumbLX >= -m_iDeadzone)
+        if (leftX >= -m_iDeadzone)
             pThisPad->m_iLeftThumbX = 0;
         else
-            pThisPad->m_iLeftThumbX = m_iDeadzone + pGamePad->sThumbLX;
+            pThisPad->m_iLeftThumbX = m_iDeadzone + leftX;
     }
     else
     {
-        pThisPad->m_iLeftThumbX = pGamePad->sThumbLX - m_iDeadzone;
+        pThisPad->m_iLeftThumbX = leftX - m_iDeadzone;
     }
-    if (pGamePad->sThumbLY <= m_iDeadzone)
+    if (leftY <= m_iDeadzone)
     {
-        if (pGamePad->sThumbLY >= -m_iDeadzone)
+        if (leftY >= -m_iDeadzone)
             pThisPad->m_iLeftThumbY = 0;
         else
-            pThisPad->m_iLeftThumbY = m_iDeadzone + pGamePad->sThumbLY;
+            pThisPad->m_iLeftThumbY = m_iDeadzone + leftY;
     }
     else
     {
-        pThisPad->m_iLeftThumbY = pGamePad->sThumbLY - m_iDeadzone;
+        pThisPad->m_iLeftThumbY = leftY - m_iDeadzone;
     }
 
     pThisPad->m_iNormalizedLeftThumbX = pThisPad->m_iLeftThumbX / m_iEffectiveRange;
@@ -266,6 +278,10 @@ void CInput::SetJoypadValues(JOYPAD *pThisPad)
 
 void CInput::SetDeadzoneAndMovementRange(unsigned int uiDeadzone, unsigned int uiMovementRangeMax)
 {
+    //A little note for later:
+    //SDL's effective ranges range from -32767/32768 for many sticks and such 
+    //while XInput seems to range from -127/128.
+    //You need to keep this in mind for controller deadzones and such. 
     m_iDeadzone = uiDeadzone;
     m_iMovementRangeMax = uiMovementRangeMax;
     m_iEffectiveRange = uiMovementRangeMax - uiDeadzone;
@@ -343,7 +359,7 @@ void CInput::SetJoypadStickAxisMap(int iPad, unsigned int uiFrom, unsigned int u
 
 void CInput::SetJoypadStickTriggerMap(int iPad, unsigned int uiFrom, unsigned int uiTo)
 {
-    unsigned char *pucTo = nullptr;
+    Sint16 *pucTo = nullptr;
 
     switch (uiTo)
     {
@@ -621,7 +637,7 @@ bool CInput::UpdateJoypads()
                 pThisPad->m_ucInputStateIndex = 0;
             }
 
-            pThisPad->m_bIsConnected = XInputGetState(i, &pThisPad->m_pInputStates[pThisPad->m_ucInputStateIndex]) == 0;
+            pThisPad->m_bIsConnected = SDL_GamepadConnected(pThisPad->sdlGamepad);
 
             bool bWasConnected = bOldIsConnected && !pThisPad->m_bIsConnected;
             pThisPad->m_bWasConnected = bWasConnected;
